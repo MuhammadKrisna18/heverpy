@@ -1,8 +1,12 @@
 # ⚡ HeverPy
 
-**HeverPy** adalah aplikasi desktop *Process Manager & Dev-Tool* modern yang dirancang khusus untuk mengelola, menjalankan, dan mengorkestrasi ekosistem **Python (FastAPI)** bersama berbagai **Frontend Framework modern (React, Next.js, Vue, Svelte)** dalam satu antarmuka studio yang intuitif dan ringan.
+> **The first Laravel Herd-style desktop DevTool built specifically for FastAPI & modern frontend development.**
 
-Dibangun dengan fondasi **Tauri v2 + Rust + React 19 + TypeScript + Vite**.
+Lelah melakukan setup virtual environment manual, menjalankan `uvicorn` dan frontend dev server di terminal yang terpisah, serta mengelola `.env` secara manual untuk setiap proyek baru? 
+
+**HeverPy** hadir untuk menghilangkan semua friksi tersebut. Ini adalah aplikasi desktop *Process Manager & Dev-Tool* native yang memberikan pengalaman *"satu klik, langsung coding"* untuk ekosistem **Python (FastAPI)** yang dipadukan dengan **Frontend Framework modern (React, Next.js, Vue, Svelte)** dalam satu antarmuka studio yang intuitif.
+
+Dibangun dengan fondasi **Tauri v2 + Rust + React 19 + TypeScript + Vite** untuk performa tinggi dan konsumsi memori yang sangat rendah.
 
 ---
 

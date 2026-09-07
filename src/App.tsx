@@ -607,6 +607,30 @@ function App() {
           </div>
         </div>
 
+        {/* ONBOARDING CARD (when no project selected) */}
+        {!projectPath && (
+          <div className="onboarding-card">
+            <div className="onboarding-title">🚀 Mulai Menggunakan HeverPy</div>
+            <div className="onboarding-steps">
+              <div className="onboarding-step">
+                <span className="onboarding-num">1</span>
+                <span>Klik <strong>Browse Folder</strong> di atas</span>
+              </div>
+              <div className="onboarding-step">
+                <span className="onboarding-num">2</span>
+                <span>Pilih folder proyek <strong>FastAPI</strong> atau folder kosong baru</span>
+              </div>
+              <div className="onboarding-step">
+                <span className="onboarding-num">3</span>
+                <span>HeverPy otomatis mendeteksi dan menyiapkan environment</span>
+              </div>
+            </div>
+            <div className="onboarding-hint">
+              Mendukung pip · uv · npm · pnpm · yarn · bun
+            </div>
+          </div>
+        )}
+
         {/* STEP 1: PYTHON ENVIRONMENT */}
         {projectPath && (
           <div className={`setup-step-box ${isVenvReady && isMainReady ? "box-ready" : ""}`}>
@@ -836,9 +860,21 @@ function App() {
         <div className="terminal-screen" ref={logContainerRef}>
           {filteredLogs.length === 0 ? (
             <div className="terminal-empty">
-              {logs.length === 0
-                ? "Pilih folder proyek FastAPI untuk mulai menjalankan server."
-                : `Tidak ada log yang cocok dengan filter "${activeLogTab}" / query "${searchLogQuery}"`}
+              {logs.length === 0 ? (
+                <div className="terminal-empty-hero">
+                  <div className="empty-icon">⚡</div>
+                  <div className="empty-title">HeverPy Terminal</div>
+                  <div className="empty-desc">
+                    {projectPath
+                      ? 'Klik "Start Servers" untuk menjalankan FastAPI backend dan frontend dev server.'
+                      : "Pilih folder proyek FastAPI di sidebar untuk memulai."}
+                  </div>
+                </div>
+              ) : (
+                <div className="terminal-empty-filter">
+                  {`Tidak ada log cocok dengan filter "${activeLogTab}"${searchLogQuery ? ` / query "${searchLogQuery}"` : ""}`}
+                </div>
+              )}
             </div>
           ) : (
             filteredLogs.map((entry) => (
