@@ -148,25 +148,43 @@ pub fn check_project(project_path: String) -> Result<ProjectStatus, String> {
 
     let is_empty = is_directory_empty(proj);
 
-    // Check python venv across Windows and Unix
     let venv_dir = proj.join("venv");
-    let has_venv = if venv_dir.exists() && venv_dir.is_dir() {
-        venv_dir.join("Scripts").join("python.exe").exists() 
-            || venv_dir.join("bin").join("python").exists()
-            || venv_dir.join("pyvenv.cfg").exists()
-    } else {
-        false
+    let dot_venv_dir = proj.join(".venv");
+    let env_dir = proj.join("env");
+
+    let check_venv = |dir: &PathBuf| -> bool {
+        if dir.exists() && dir.is_dir() {
+            dir.join("Scripts").join("python.exe").exists() 
+                || dir.join("bin").join("python").exists()
+                || dir.join("pyvenv.cfg").exists()
+        } else {
+            false
+        }
     };
 
-    let main_path = proj.join("main.py");
-    let app_path = proj.join("app.py");
-    let (has_main, active_main_path) = if main_path.exists() && main_path.is_file() {
-        (true, Some(main_path))
-    } else if app_path.exists() && app_path.is_file() {
-        (true, Some(app_path))
-    } else {
-        (false, None)
-    };
+    let has_venv = check_venv(&venv_dir) || check_venv(&dot_venv_dir) || check_venv(&env_dir);
+
+    let candidates = [
+        proj.join("main.py"),
+        proj.join("app.py"),
+        proj.join("src").join("main.py"),
+        proj.join("src").join("app.py"),
+        proj.join("app").join("main.py"),
+        proj.join("app").join("app.py"),
+        proj.join("app").join("__init__.py"),
+        proj.join("api").join("main.py"),
+    ];
+
+    let mut has_main = false;
+    let mut active_main_path = None;
+
+    for path in candidates {
+        if path.exists() && path.is_file() {
+            has_main = true;
+            active_main_path = Some(path);
+            break;
+        }
+    }
 
     let req_path = proj.join("requirements.txt");
     let has_requirements = req_path.exists() && req_path.is_file();

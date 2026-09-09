@@ -69,16 +69,27 @@ pub fn start_server(
 
     let proj = Path::new(&project_path);
     let python_exe = get_python_exe(&project_path);
-    let main_py = proj.join("main.py");
-    let app_py = proj.join("app.py");
+    let candidates = [
+        (proj.join("main.py"), "main:app"),
+        (proj.join("app.py"), "app:app"),
+        (proj.join("src").join("main.py"), "src.main:app"),
+        (proj.join("src").join("app.py"), "src.app:app"),
+        (proj.join("app").join("main.py"), "app.main:app"),
+        (proj.join("app").join("app.py"), "app.app:app"),
+        (proj.join("app").join("__init__.py"), "app:app"),
+        (proj.join("api").join("main.py"), "api.main:app"),
+    ];
 
-    let (has_backend, module_target) = if python_exe.exists() && main_py.exists() {
-        (true, "main:app")
-    } else if python_exe.exists() && app_py.exists() {
-        (true, "app:app")
-    } else {
-        (false, "main:app")
-    };
+    let mut has_backend = false;
+    let mut module_target = "main:app";
+
+    for (path, target) in candidates.iter() {
+        if path.exists() {
+            has_backend = true;
+            module_target = target;
+            break;
+        }
+    }
 
     let root_pkg = proj.join("package.json");
     let sub_pkg = proj.join("frontend").join("package.json");

@@ -5,20 +5,56 @@ use std::thread;
 use tauri::{AppHandle, Emitter};
 
 pub fn get_python_exe(project_path: &str) -> PathBuf {
-    let base = Path::new(project_path).join("venv");
-    if cfg!(target_os = "windows") {
-        base.join("Scripts").join("python.exe")
+    let proj = Path::new(project_path);
+    let dot_venv = proj.join(".venv");
+    let venv = proj.join("venv");
+    let env = proj.join("env");
+
+    let base = if dot_venv.exists() {
+        Some(dot_venv)
+    } else if venv.exists() {
+        Some(venv)
+    } else if env.exists() {
+        Some(env)
     } else {
-        base.join("bin").join("python")
+        None
+    };
+
+    if let Some(b) = base {
+        if cfg!(target_os = "windows") {
+            b.join("Scripts").join("python.exe")
+        } else {
+            b.join("bin").join("python")
+        }
+    } else {
+        PathBuf::from("python")
     }
 }
 
 pub fn get_pip_exe(project_path: &str) -> PathBuf {
-    let base = Path::new(project_path).join("venv");
-    if cfg!(target_os = "windows") {
-        base.join("Scripts").join("pip.exe")
+    let proj = Path::new(project_path);
+    let dot_venv = proj.join(".venv");
+    let venv = proj.join("venv");
+    let env = proj.join("env");
+
+    let base = if dot_venv.exists() {
+        Some(dot_venv)
+    } else if venv.exists() {
+        Some(venv)
+    } else if env.exists() {
+        Some(env)
     } else {
-        base.join("bin").join("pip")
+        None
+    };
+
+    if let Some(b) = base {
+        if cfg!(target_os = "windows") {
+            b.join("Scripts").join("pip.exe")
+        } else {
+            b.join("bin").join("pip")
+        }
+    } else {
+        PathBuf::from("pip")
     }
 }
 

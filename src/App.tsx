@@ -483,7 +483,7 @@ function App() {
   const isFastapi = status?.is_fastapi ?? false;
   const hasFrontend = status?.has_frontend ?? false;
   const hasRequirements = status?.has_requirements ?? false;
-  const isProjectReady = isVenvReady && isMainReady && isFastapi;
+  const isProjectReady = isMainReady && isFastapi;
 
   return (
     <main className="app-container">
@@ -501,19 +501,7 @@ function App() {
             </div>
           </div>
 
-          <button
-            className="btn-env-trigger"
-            onClick={() => {
-              if (projectPath) {
-                loadEnvFile(projectPath);
-                setIsEnvModalOpen(true);
-              }
-            }}
-            disabled={!projectPath}
-            title="Kelola .env"
-          >
-            .env Manager {status?.has_env && <span className="dot-active-env" />}
-          </button>
+
         </div>
 
         {/* DIRECTORY SELECTOR */}
@@ -566,12 +554,12 @@ function App() {
         {/* ACTIVE SERVICES & QUICK LINKS */}
         <div className="status-grid">
           {/* Backend Pill */}
-          <div className={`service-pill ${isRunning && isVenvReady && isMainReady ? "active-pill" : ""}`}>
+          <div className={`service-pill ${isRunning && isMainReady ? "active-pill" : ""}`}>
             <div className="service-info-left">
-              <span className={`status-dot ${isRunning && isVenvReady && isMainReady ? "dot-running" : isVenvReady && isMainReady ? "dot-ready" : "dot-offline"}`} />
+              <span className={`status-dot ${isRunning && isMainReady ? "dot-running" : isMainReady ? "dot-ready" : "dot-offline"}`} />
               <span className="service-title">FastAPI Backend</span>
             </div>
-            {isRunning && isVenvReady && isMainReady ? (
+            {isRunning && isMainReady ? (
               <div style={{ display: "flex", gap: "0.3rem" }}>
                 <a href={`http://localhost:${backendPort}`} target="_blank" rel="noreferrer" className="service-link">
                   :{backendPort} →
@@ -582,7 +570,7 @@ function App() {
               </div>
             ) : (
               <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
-                {isVenvReady && isMainReady ? "Ready" : "Not Ready"}
+                {isMainReady ? "Ready" : "Not Ready"}
               </span>
             )}
           </div>
@@ -625,157 +613,10 @@ function App() {
                 <span>HeverPy otomatis mendeteksi dan menyiapkan environment</span>
               </div>
             </div>
-            <div className="onboarding-hint">
-              Mendukung pip · uv · npm · pnpm · yarn · bun
-            </div>
           </div>
         )}
 
-        {/* STEP 1: PYTHON ENVIRONMENT */}
-        {projectPath && (
-          <div className={`setup-step-box ${isVenvReady && isMainReady ? "box-ready" : ""}`}>
-            <div className="step-box-header">
-              <div className="step-label">
-                <span>Python Environment</span>
-              </div>
-              <span className={`step-badge ${isVenvReady && isMainReady ? "badge-done" : "badge-todo"}`}>
-                {isVenvReady && isMainReady ? "Ready" : "Step 1"}
-              </span>
-            </div>
 
-            {/* Python PM choice */}
-            <div className="pm-select-row">
-              <span className="pm-label-text">Manager:</span>
-              <div className="pm-btn-group">
-                <button
-                  className={`pm-item-btn ${selectedPythonPm === "pip" ? "active" : ""}`}
-                  onClick={() => setSelectedPythonPm("pip")}
-                  disabled={isVenvReady || isSettingUp}
-                >
-                  pip
-                </button>
-                <button
-                  className={`pm-item-btn ${selectedPythonPm === "uv" ? "active" : ""}`}
-                  onClick={() => setSelectedPythonPm("uv")}
-                  disabled={isVenvReady || isSettingUp}
-                  title={status?.has_uv ? "uv siap digunakan" : "uv akan dijalankan jika terpasang"}
-                >
-                  uv {status?.has_uv ? "(Fast)" : ""}
-                </button>
-              </div>
-            </div>
-
-            <button
-              className={`btn-action-solid ${isVenvReady ? "btn-disabled-ready" : ""}`}
-              onClick={handleSetupEnvironment}
-              disabled={isVenvReady || isSettingUp}
-            >
-              {isVenvReady
-                ? "venv & FastAPI Ready"
-                : isSettingUp
-                ? "Membuat venv..."
-                : `1. Setup Environment (${selectedPythonPm})`}
-            </button>
-
-            <button
-              className={`btn-action-outline ${isMainReady ? "btn-disabled-ready" : ""}`}
-              onClick={handleGenerateBoilerplate}
-              disabled={isMainReady || !isVenvReady || isSettingUp}
-            >
-              {isMainReady ? "main.py Ready" : "2. Generate main.py"}
-            </button>
-
-            {hasRequirements && (
-              <button
-                onClick={handleInstallRequirements}
-                className="btn-action-outline"
-                disabled={isRunning || !projectPath || isSettingUp}
-              >
-                {isSettingUp ? "Menginstal..." : "Install requirements.txt"}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* STEP 2: FRONTEND SETUP */}
-        {projectPath && (
-          <div className={`setup-step-box ${hasFrontend ? "box-ready" : ""}`}>
-            <div className="step-box-header">
-              <div className="step-label">
-                <span>Frontend Integration</span>
-              </div>
-              <span className={`step-badge ${hasFrontend ? "badge-done" : "badge-todo"}`}>
-                {hasFrontend ? "Configured" : "Step 2"}
-              </span>
-            </div>
-
-            {hasFrontend ? (
-              <div style={{ fontSize: "0.75rem", color: "#15803d", lineHeight: 1.4 }}>
-                <div>Framework: <strong>{status?.frontend_framework || "Vite"}</strong></div>
-                <div>Manager: <strong>{status?.detected_node_pm}</strong></div>
-              </div>
-            ) : (
-              <>
-                {/* Node PM Selector */}
-                <div className="pm-select-row">
-                  <span className="pm-label-text">Node PM:</span>
-                  <div className="pm-btn-group">
-                    {(["npm", "pnpm", "yarn", "bun"] as const).map((pm) => (
-                      <button
-                        key={pm}
-                        className={`pm-item-btn ${selectedNodePm === pm ? "active" : ""}`}
-                        onClick={() => setSelectedNodePm(pm)}
-                        disabled={isSettingUp}
-                      >
-                        {pm}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Framework Grid */}
-                <div className="framework-grid">
-                  <button
-                    className={`fw-choice-btn ${selectedFramework === "react" ? "active" : ""}`}
-                    onClick={() => setSelectedFramework("react")}
-                    disabled={isSettingUp}
-                  >
-                    React
-                  </button>
-                  <button
-                    className={`fw-choice-btn ${selectedFramework === "nextjs" ? "active" : ""}`}
-                    onClick={() => setSelectedFramework("nextjs")}
-                    disabled={isSettingUp}
-                  >
-                    Next.js
-                  </button>
-                  <button
-                    className={`fw-choice-btn ${selectedFramework === "vue" ? "active" : ""}`}
-                    onClick={() => setSelectedFramework("vue")}
-                    disabled={isSettingUp}
-                  >
-                    Vue
-                  </button>
-                  <button
-                    className={`fw-choice-btn ${selectedFramework === "svelte" ? "active" : ""}`}
-                    onClick={() => setSelectedFramework("svelte")}
-                    disabled={isSettingUp}
-                  >
-                    Svelte
-                  </button>
-                </div>
-
-                <button
-                  className="btn-action-solid"
-                  onClick={handleInstallFrontend}
-                  disabled={isSettingUp || !isVenvReady}
-                >
-                  {isSettingUp ? "Scaffolding..." : `Install ${selectedFramework.toUpperCase()}`}
-                </button>
-              </>
-            )}
-          </div>
-        )}
       </aside>
 
       {/* ============================================================
